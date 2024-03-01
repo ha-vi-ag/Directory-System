@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VDR</title>
+    <style>
+        #folderbanao {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        div {
+            text-align: center;
+        }
+
+        img {
+            height: 100px;
+            width: 120px;
+        }
+
+        img:hover{ cursor: pointer; }
+
+        .custom-menu {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 5px 0;
+            z-index: 1000;
+        }
+        .custom-menu-item {
+            padding: 5px 20px;
+            cursor: pointer;
+        }
+        .custom-menu-item:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <form action="/admin/create-folder" method="POST">
+        <input type="text" placeholder="Name" name="name">
+        <input type="text" name="parentId" value="<%= parentId %>" hidden>
+        <input type="submit" value="New folder">
+    </form>
+
+    <div id="custom-menu" class="custom-menu" style="display: none;">
+        <span hidden id="pId"></span>
+        <div class="custom-menu-item" id="option1">Delete</div>
+    </div>
+
+    <div id="folderbanao">
+        <% if(list.length <= 0) { %> 
+            <h1>Empty Folder</h1>
+        <% } else { %>    
+            <% list.forEach((details) => { %>
+                <div>
+                    <img class="folderImage"src="/folderimg2.png" alt="folder" fid="<%= details._id %>">
+                    <div><%= details.name %></div>
+                </div>
+            <% }) %>
+        <% } %>
+    </div>
+
+    <script>
+        var customMenu = document.getElementById('custom-menu');
+        let parentId = "<%= parentId %>";
+        const image = document.getElementsByClassName('folderImage');
+        for(const img of image) {
+            img.addEventListener('dblclick', (e) => {
+                window.location.href = `/admin/fetchAllFolders/${img.getAttribute('fid')}`;
+            })
+
+            img.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+
+                customMenu.style.display = 'block';
+                customMenu.style.left = e.pageX + 'px';
+                customMenu.style.top = e.pageY + 'px';
+                document.getElementById('pId').innerText = img.getAttribute('fid');
+                document.addEventListener('click', function () {
+                    customMenu.style.display = 'none';
+                });
+            })
+        }
+
+        document.querySelectorAll('.custom-menu-item').forEach(function (item) {
+            item.addEventListener('click', function () {
+                const obj = {
+                    parentId: "<%= parentId %>",
+                    id: document.getElementById('pId').innerText
+                }
+                fetch('/admin/deleteFolder', {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(obj)
+                }).then(res => {
+                    if(res.status === 200) {
+                        if(!parentId) parentId="null";
+
+                        window.location.href = "/admin/fetchAllFolders/" + parentId;
+                    }
+                }).catch(console.log);
+            });
+        });
+
+    </script>
+</body>
+
+</html>

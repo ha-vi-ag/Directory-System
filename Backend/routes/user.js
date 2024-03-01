@@ -5,10 +5,12 @@ const isAuth = require("../middleware/isAuth");
 
 const router = express.Router();
 
-router.put("/create-folder", isAuth, userHandler.createFolder);
+router.get('/', userHandler.getHome);
 
-router.get("/fetchAllFolders/:parentId", isAuth, userHandler.fetchAllFolders);
+router.get('/about', userHandler.getAbout);
 
-router.post("/deleteFolder", isAuth, userHandler.deleteFolder);
+router.get('/login', userHandler.getLogin);
+
+router.get('/signup', userHandler.getSignup);
 
 module.exports = router;

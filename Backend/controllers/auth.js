@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken");
+const path = require("path");
+
 const { validationResult } = require("express-validator");
 
 const Users = require("../models/user");
@@ -21,23 +23,21 @@ const doLogin = async (req, res, next) => {
 
   res.cookie("jwtToken", token, { httpOnly: true, secure: true });
 
-  return res.sendStatus(200);
+  return res.redirect("/admin/fetchAllFolders/null");
 };
 
 const doSignup = async (req, res, next) => {
   const { errors } = validationResult(req);
 
+  console.log(errors);
+
   if (errors.length > 0) return res.status(422).json({ errors: errors[0].msg });
 
   const { name, email, password } = req.body;
 
-  const user = await Users.findOne({ email });
-
-  if (user) return res.status(422).json({ message: "Email already exists" });
-
   await Users.create({ name, email, password });
 
-  return res.sendStatus(201);
+  return res.redirect('/login');
 };
 
 const doLogout = async (req, res, next) => {};

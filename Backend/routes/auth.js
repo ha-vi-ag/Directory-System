@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.post("/login", authHandler.doLogin);
 
-router.put(
+router.post(
   "/signup",
   [
     check("email")
